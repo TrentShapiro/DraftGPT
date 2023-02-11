@@ -32,7 +32,7 @@ def text_from_box(image, start_x, end_x, start_y, end_y):
     
     for d in perturbations:
         box_img = image[start_y+d[1]:end_y+d[1],start_x+d[0]:end_x+d[0]]
-        text = pytesseract.image_to_string(box_img)
+        text = pytesseract.image_to_string(box_img,config='--psm 7')
         if text != '':
             return text
 
