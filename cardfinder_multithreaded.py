@@ -1,4 +1,5 @@
 import json
+import os
 import re
 import subprocess
 from multiprocessing import Process, Queue
@@ -26,7 +27,6 @@ def process_text(text, replacement, verbose = False):
 def img_to_string(queue, img):
     text = pytesseract.image_to_string(
         image=img,
-        lang='eng',
         config='--psm 7',
     )
     text = process_text(text,'')
@@ -151,6 +151,9 @@ def draw_card_names(img, names_and_corners):
 
 
 if __name__ == '__main__':
+    # Turn off inherent multithreading
+    os.environ['OMP_THREAD_LIMIT'] = '1'
+    
     coords = subprocess.Popen(
         ['python','external/select_bounding_box.py'],
         stdout=subprocess.PIPE).communicate()[0]
