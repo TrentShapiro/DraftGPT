@@ -6,9 +6,9 @@ from multiprocessing import Process, Queue
 
 import cv2
 import numpy as np
-import pytesseract
+from external.pytesseract import pytesseract
 import requests
-from PIL import ImageGrab
+from PIL import ImageGrab, Image
 
 
 def process_text(text, replacement, verbose = False):
@@ -25,8 +25,9 @@ def process_text(text, replacement, verbose = False):
 
 
 def img_to_string(queue, img):
+    im = Image.fromarray(img)
     text = pytesseract.image_to_string(
-        image=img,
+        image=im,
         config='--psm 7',
     )
     text = process_text(text,'')
@@ -41,19 +42,14 @@ def text_from_box(img, start_x, end_x, start_y, end_y):
         [-1,1], [1,-1]
     ]
 
-    queue = Queue()
-    processes=[]
-    ret_values = []
     for d in perturbations:
-        temp_img = img[start_y+d[1]:end_y+d[1],start_x+d[0]:end_x+d[0]]
-        p = Process(target=img_to_string, args=(queue,temp_img,))
-        p.start()
-        processes.append(p)
-    for p in processes:
-        ret_values.append(queue.get())
-        p.join()
-    
-    return max(ret_values,key=len)
+        box_img = Image.fromarray(img[start_y+d[1]:end_y+d[1],start_x+d[0]:end_x+d[0]])
+        text = pytesseract.image_to_string(box_img,config='--psm 7')
+        text = process_text(text,'')
+        if text != '':
+            return text
+
+    return ''
 
 
 def card_to_text(queue, img, card):
