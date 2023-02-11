@@ -18,10 +18,11 @@ Magic: The Gathering Online OCR from arbitrary screen selection in Python
 -  Code has only been run on windows, Mac OS and Linux use at your own risk.
 -  Google how to set up tesseract
 -  If your python cannot find the executable from PATH, add the line `pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'` to the beginning of `cardfinder.py`
-
+-  To speed up processing, a forked pytesseract is in the repo, the change implements tesseract read from stdin rather than writing image to disk, based on this [comment](https://github.com/madmaze/pytesseract/issues/172#issuecomment-796513105)
+-  An attempt at multithreading was made in `cardfinder_multithreaded.py` but is much slower, even after limiting tesseract to single-threaded. Slightly more accurate, but twice as slow.
 
 ## Dependencies
--  pytesseract
+-  pytesseract fork in repo
 -  PIL
 -  cv2
 -  pynput
