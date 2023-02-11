@@ -4,9 +4,9 @@ import subprocess
 
 import cv2
 import numpy as np
-import pytesseract
+from external.pytesseract import pytesseract
 import requests
-from PIL import ImageGrab
+from PIL import ImageGrab, Image
 
 
 def process_text(text, replacement, verbose = False):
@@ -32,8 +32,10 @@ def text_from_box(image, start_x, end_x, start_y, end_y):
     
     for d in perturbations:
         box_img = image[start_y+d[1]:end_y+d[1],start_x+d[0]:end_x+d[0]]
+        box_img = Image.fromarray(box_img).convert('L')
         text = pytesseract.image_to_string(box_img,config='--psm 7')
-        if text != '':
+        text = process_text(text,'')
+        if text != '' and len(text) >= 3:
             return text
 
     return ''
@@ -72,12 +74,11 @@ def find_text_box(img):
     text_values = []
     for rect in corners:
         start_x = rect[0][0] + 16
-        start_y = rect[0][1] + 16
+        start_y = rect[0][1] + 13
         end_x = start_x + 140
-        end_y = start_y + 14
+        end_y = start_y + 18
         cv2.rectangle(img, (start_x,start_y),(end_x,end_y),(0,0,255),1)
         text = text_from_box(img, start_x,end_x,start_y,end_y)
-        text = process_text(text,'')
         text_values.append(text)
         cv2.putText(img, text, (start_x, start_y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 200), 1)
 
